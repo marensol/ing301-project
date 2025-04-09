@@ -1,76 +1,82 @@
-class Measurement:
-    """
-    This class represents a measurement taken from a sensor.
-    """
+# smarthouse/domain.py
 
-    def __init__(self, timestamp, value, unit):
-        self.timestamp = timestamp
-        self.value = value
+class Room:
+    def __init__(self, id, floor, size, name):
+        self.id = id
+        self.floor = floor
+        self.size = size
+        self.name = name
+        self.devices = []
+
+    def add_device(self, device):
+        self.devices.append(device)
+
+class Floor:
+    def __init__(self, level):
+        self.level = level
+
+class Device:
+    def __init__(self, id, name, type, state=None):
+        self.id = id
+        self.name = name
+        self.type = type
+        self.state = state
+
+class Sensor(Device):
+    def __init__(self, id, name, type, unit, state=None):
+        super().__init__(id, name, type, state)
         self.unit = unit
 
+class Actuator(Device):
+    def __init__(self, id, name, type, state=None):
+        super().__init__(id, name, type, state)
 
-
-# TODO: Add your own classes here!
-
+class Measurement:
+    def __init__(self, value, timestamp):
+        self.value = value
+        self.timestamp = timestamp
 
 class SmartHouse:
-    """
-    This class serves as the main entity and entry point for the SmartHouse system app.
-    Do not delete this class nor its predefined methods since other parts of the
-    application may depend on it (you are free to add as many new methods as you like, though).
+    def __init__(self):
+        self.floors = {}  # Store floors using a dictionary
+        self.rooms = {}   # Store rooms using a dictionary
+        self.devices = {}  # Store devices using a dictionary
+        self.measurements = []  # Store measurements (for later use in repository)
 
-    The SmartHouse class provides functionality to register rooms and floors (i.e. changing the 
-    house's physical layout) as well as register and modify smart devices and their state.
-    """
+    def register_floor(self, floor_level):
+        # Register a floor and return a Floor object
+        floor = Floor(floor_level)
+        self.floors[floor_level] = floor
+        return floor
 
-    def register_floor(self, level):
-        """
-        This method registers a new floor at the given level in the house
-        and returns the respective floor object.
-        """
+    def get_floor(self, floor_level):
+        # Get a floor by its level
+        return self.floors.get(floor_level)
 
-    def register_room(self, floor, room_size, room_name = None):
-        """
-        This methods registers a new room with the given room areal size 
-        at the given floor. Optionally the room may be assigned a mnemonic name.
-        """
-        pass
+    def register_room(self, floor, size, name):
+        # Register a room and return the room object
+        room_id = len(self.rooms) + 1  # Unique ID for the room
+        room = Room(room_id, floor, size, name)
+        self.rooms[room_id] = room
+        return room
 
-
-    def get_floors(self):
-        """
-        This method returns the list of registered floors in the house.
-        The list is ordered by the floor levels, e.g. if the house has 
-        registered a basement (level=0), a ground floor (level=1) and a first floor 
-        (leve=1), then the resulting list contains these three flors in the above order.
-        """
-        pass
-
-
-    def get_rooms(self):
-        """
-        This methods returns the list of all registered rooms in the house.
-        The resulting list has no particular order.
-        """
-        pass
-
-
-    def get_area(self):
-        """
-        This methods return the total area size of the house, i.e. the sum of the area sizes of each room in the house.
-        """
-
+    def get_room_by_id(self, room_id):
+        # Retrieve a room by its ID
+        return self.rooms.get(room_id)
 
     def register_device(self, room, device):
-        """
-        This methods registers a given device in a given room.
-        """
-        pass
+        # Register a device to a room
+        room.add_device(device)
+        self.devices[device.id] = device
 
-    
-    def get_device(self, device_id):
-        """
-        This method retrieves a device object via its id.
-        """
-        pass
+    def get_device_by_id(self, device_id):
+        # Get a device by its ID
+        return self.devices.get(device_id)
 
+    def add_measurement(self, measurement):
+        # Store a measurement
+        self.measurements.append(measurement)
+
+    def get_measurements(self):
+        # Return all measurements
+        return self.measurements
